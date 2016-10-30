@@ -1,0 +1,74 @@
+@import '../../node_modules/bootstrap-sass/assets/stylesheets/bootstrap';
+@import 'https://fonts.googleapis.com/css?family=Rock+Salt';
+
+$font-stack:  'Rock Salt', cursive, sans-serif;
+$color1: #E9D758;
+$color2: #297373;
+$color3: #FF8552;
+$color4: #E6E6E6;
+$color5: #39393A;
+
+body {
+  height: 100%;
+  font-family: $font-stack !important;
+  padding-top: 10px;
+}
+
+.app {
+  max-width: 320px;
+  min-height: 480px;
+  margin: 0 auto;
+  background-color: $color2;
+  color: $color4;
+  border-color: $color5;
+}
+
+.name-input {
+    width: 100%;
+  }
+
+.ingredient-input {
+    width: 100%;
+}
+
+.recipe {
+    background-color: $color1 !important;
+    color: $color5 !important;
+    text-align: center;
+    border-color: $color4 !important;
+    &:hover {
+        background-color: $color3 !important;
+        border-color: $color5 !important;
+    }
+}
+
+.modal {
+  .modal-header {
+    background-color: $color1 !important;
+    color: $color5 !important;
+
+  }
+  .modal-body {
+    background-color: $color2;
+    h4 {
+      color: $color4;
+    }
+    p {
+      color: $color4;
+    }
+
+  }
+  .modal-footer {
+    background-color: $color2;
+    button {
+      background-color: $color1 !important;
+      color: $color5 !important;
+      border-color: $color4 !important;
+      &:hover {
+          background-color: $color3 !important;
+          border-color: $color5 !important;
+    }
+  }
+
+  }
+}

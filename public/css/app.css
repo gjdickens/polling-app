@@ -5817,16 +5817,16 @@ button.close {
 
 body {
   height: 100%;
-  font-family: "Rock Salt", cursive, sans-serif !important;
+  font-family: arial, sans-serif !important;
   padding-top: 10px; }
 
 .app {
   max-width: 320px;
   min-height: 480px;
   margin: 0 auto;
-  background-color: #297373;
-  color: #E6E6E6;
-  border-color: #39393A; }
+  background-color: #39393A;
+  color: white;
+  border-color: black; }
 
 .name-input {
   width: 100%; }
@@ -5835,31 +5835,31 @@ body {
   width: 100%; }
 
 .recipe {
-  background-color: #E9D758 !important;
-  color: #39393A !important;
+  background-color: #E6E6E6 !important;
+  color: black !important;
   text-align: center;
-  border-color: #E6E6E6 !important; }
+  border-color: white !important; }
   .recipe:hover {
     background-color: #FF8552 !important;
-    border-color: #39393A !important; }
+    border-color: black !important; }
 
 .modal .modal-header {
-  background-color: #E9D758 !important;
-  color: #39393A !important; }
+  background-color: #E6E6E6 !important;
+  color: black !important; }
 
 .modal .modal-body {
-  background-color: #297373; }
+  background-color: #39393A; }
   .modal .modal-body h4 {
-    color: #E6E6E6; }
+    color: white; }
   .modal .modal-body p {
-    color: #E6E6E6; }
+    color: white; }
 
 .modal .modal-footer {
-  background-color: #297373; }
+  background-color: #39393A; }
   .modal .modal-footer button {
-    background-color: #E9D758 !important;
-    color: #39393A !important;
-    border-color: #E6E6E6 !important; }
+    background-color: #E6E6E6 !important;
+    color: black !important;
+    border-color: white !important; }
     .modal .modal-footer button:hover {
       background-color: #FF8552 !important;
-      border-color: #39393A !important; }
+      border-color: black !important; }

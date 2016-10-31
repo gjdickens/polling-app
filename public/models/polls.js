@@ -4,8 +4,9 @@ var Schema = mongoose.Schema;
 var Schema   = new Schema({
     name: String,
     question: String,
-    choices: Array,
-    responses: Array
+    choices: String,
+    responses: Array,
+    pollId: String
 });
 
-module.exports = mongoose.model('Polls', Schema);
+module.exports = mongoose.model('Poll', Schema);

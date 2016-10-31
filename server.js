@@ -4,7 +4,7 @@ var path = require('path');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var sassMiddleware = require('node-sass-middleware');
-var Polls = require('./public/models/polls');
+var Poll = require('./public/models/polls');
 
 var db = process.env.MONGOLAB_URI;
 
@@ -50,21 +50,13 @@ router.route('/polls')
 
     //get all polls
     .get(function(req, res) {
-      Polls.find(function(err, polls) {
+      Poll.find(function(err, polls) {
         if (err) {res.send(err)};
         if (polls.length > 0) {
-          res.json(polls);
+          res.json({data: polls});
         }
         else {
-          res.json({data: [{
-            "name": "pumpkin pie",
-            "ingredients": ["pumpkin puree", "milk"]
-          },
-          {
-            "name": "spaghetti",
-            "ingredients": ["noodles", "tomato sauce"]
-          }
-        ]});
+          res.json({data: []});
         }
           });
     })
@@ -73,13 +65,40 @@ router.route('/polls')
 
       var poll = new Poll();
       poll.name = req.body.name;
-      poll.question = req.body.question;
       poll.choices = req.body.choices;
-      poll.responses = req.body.responses;
+      poll.pollId = req.body.pollId;
 
-      poll.save(function(err) {
+      poll.save(function(err, poll) {
+        if (err) {console.log(err)};
+        res.status(201).json(poll);
+      });
+    });
+
+  router.route('/polls/:poll_id')
+
+    //update poll by id
+    .put(function(req, res) {
+      Poll.findOne({'pollId': req.params.poll_id}, function(err, poll) {
+        if (err) {res.send(err)}
+        else {
+          poll.name = req.body.name;
+          poll.choices = req.body.choices;
+          //save poll
+          poll.save(function(err, poll) {
+            if (err) {res.send(err)};
+            res.status(201).json(poll);
+          });
+        }
+
+      });
+    })
+    //delete bear by id
+    .delete(function(req, res) {
+      Poll.remove({
+        pollId: req.params.poll_id
+      }, function(err, poll) {
         if (err) {res.send(err)};
-        res.json({ message: 'new poll created!'});
+        res.json({ message: 'poll deleted' });
       });
     });
 

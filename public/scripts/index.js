@@ -2,19 +2,69 @@ var Button = ReactBootstrap.Button;
 var Modal = ReactBootstrap.Modal;
 
 var DisplayContainer = React.createClass({
-  fetchPolls: function() {
+fetchPolls: function() {
+  var that = this;
+  fetch('/polls')
+    .then(function(response) {
+      return response.json()
+    })
+    .then(function(json) {
+      that.setState({data: json.data})
+    })
+  },
+
+  saveNew: function() {
     var that = this;
-    fetch('/polls')
-      .then(function(response) {
-        return response.json()
+    var newId = uuid.v4();
+    this.setState({data: that.state.data.concat([{name: that.state.current.name, choices: that.state.current.choices, pollId: newId}])});
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    var options = {
+      method: 'post',
+      body: JSON.stringify({
+        name: that.state.current.name,
+        choices: that.state.current.choices,
+        pollId: newId
+      }),
+      headers: myHeaders
+      };
+    fetch('/polls', options)
+    .then(function(response) {
+      that.fetchPolls();
+    })
+  },
+
+  saveEdited: function(edited) {
+    var that = this;
+    this.setState({
+      data: this.state.data.map(function(selected) {
+        if(selected.pollId === edited.pollId) {
+          selected.name = that.state.current.name;
+          selected.choices = that.state.current.choices;
+        }
+        return selected;
       })
-      .then(function(json) {
-        that.setState({data: json.data})
-      })
-    },
+    });
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    var options = {
+      method: 'put',
+      body: JSON.stringify({
+        name: that.state.current.name,
+        choices: that.state.current.choices,
+      }),
+      headers: myHeaders
+      };
+    fetch('/polls/' + edited.pollId, options)
+    .then(function(response) {
+      that.fetchPolls();
+    });
+    this.resetCurrent();
+    this.hideModal();
+  },
 
   getInitialState: function() {
-    return {data: [], view: {showAddModal: false, showEditModal: false}, current: {"name": "", "ingredients": ""}, editing: false}
+    return {data: [], view: {showAddModal: false, showEditModal: false}, current: {"name": "", "choices": "", "pollId": ""}, editing: false}
   },
 
 
@@ -22,62 +72,52 @@ var DisplayContainer = React.createClass({
     this.fetchPolls();
   },
 
-
-  editRecipe: function(name) {
-    this.setState({current: {"name": name.name, "ingredients": name.ingredients}});
+  editSelected: function(selected) {
+    this.setState({current: {"name": selected.name, "choices": selected.choices, "pollId": selected.pollId }});
     this.showEditModal();
   },
 
-  changeCurrent: function(recipe) {
-    if (recipe.name) {
-      this.setState({current: {"name": recipe.name, "ingredients": this.state.current.ingredients}});
+  changeCurrent: function(selected) {
+    if (selected.name) {
+      this.setState({current: {"name": selected.name, "choices": this.state.current.choices, "pollId": this.state.current.pollId }});
     }
-    else if (recipe.ingredients) {
-      this.setState({current: {"name": this.state.current.name, "ingredients": recipe.ingredients}});
+    else if (selected.choices) {
+      this.setState({current: {"name": this.state.current.name, "choices": selected.choices, "pollId": this.state.current.pollId }});
     }
   },
 
-  addRecipe: function(e) {
+  addNew: function(e) {
     e.preventDefault();
-    this.setState({current: {"name": "", "ingredients": ""}});
+    this.resetCurrent();
     this.showAddModal();
   },
 
-  deleteRecipe: function() {
+  deleteSelected: function(deleted) {
     var that = this;
     this.setState({
-      data: this.state.data.filter(function(recipe) {return recipe.name !== that.state.current.name })
+      data: this.state.data.filter(function(selected) {return selected.pollId !== deleted })
     });
-
-    this.setState({current: {"name": "", "ingredients": ""}});
+    // delete from server
+    var myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    var options = {
+      method: 'delete',
+      headers: myHeaders
+      };
+    fetch('/polls/' + deleted, options)
+    .then(function(response) {
+      that.fetchPolls();
+    });
+    //reset current and hide modal
+    this.resetCurrent();
     this.hideModal();
 },
+  resetCurrent: function() {
+    this.setState({current: {"name": "", "choices": "", "pollId":""}});
+  },
 
-  createRecipe: function() {
-  var that = this;
-  var exists = this.state.data.filter(function(recipe) { return recipe.name === that.state.current.name });
-  if (exists.length > 0) {
-    this.setState({
-      data: this.state.data.map(function(recipe) {
-        if (recipe.name === that.state.current.name) {
-          recipe.name = that.state.current.name;
-          recipe.ingredients = that.state.current.ingredients;
-          return recipe;
-        }
-        else {
-          return recipe;
-        }
-      })
-    });
-  }
-  else {
-    this.setState({
-      data: this.state.data.concat([{
-        name: this.state.current.name,
-        ingredients: this.state.current.ingredients
-      }])
-    });
-  }
+  createNew: function() {
+  this.saveNew();
   if (this.state.editing === true) {
     this.setState({editing: false})
   }
@@ -91,7 +131,7 @@ var DisplayContainer = React.createClass({
 
   hideModal(){
         this.setState({view: {showAddModal: false, showEditModal: false}});
-        this.setState({current: {"name": "", "ingredients": ""}});
+        this.resetCurrent();
         this.setState({editing: false})
   },
   showAddModal(){
@@ -110,13 +150,15 @@ var DisplayContainer = React.createClass({
   render: function() {
     return (
       <div>
-        <h2 className="text-center">Recipes</h2>
+        <h2 className="text-center">Polls</h2>
+        <a href='#' className='list-group-item recipe' onClick={this.addNew}>Add New Poll</a>
+        <br/>
         <RecipeList
           data={this.state.data}
-          onEdit={this.editRecipe}
+          onEdit={this.editSelected}
           />
 
-        <a href='#' className='list-group-item recipe' onClick={this.addRecipe}>Add New Recipe</a>
+
 
         {/* Modal */}
         <DisplayModal
@@ -126,9 +168,10 @@ var DisplayContainer = React.createClass({
           handleClose={this.hideModal}
           handleAdd={this.showAddModal}
           handleEdit={this.showEditModal}
-          handleSave={this.createRecipe}
+          handleSave={this.createNew}
+          handleSaveEdit={this.saveEdited}
           handleChange={this.changeCurrent}
-          handleDelete={this.deleteRecipe}
+          handleDelete={this.deleteSelected}
           editing={this.state.editing}
           startEditing={this.startEditing}
           />
@@ -143,12 +186,13 @@ var DisplayContainer = React.createClass({
 var RecipeList = React.createClass({
   render: function() {
     var that = this;
-    var recipeNodes = this.props.data.map(function(recipe, i) {
+    var recipeNodes = this.props.data.map(function(arr, i) {
       return (
           <Recipe
-            name={recipe.name}
-            key={i}
-            ingredients={recipe.ingredients}
+            name={arr.name}
+            key={arr.pollId}
+            choices={arr.choices}
+            pollId={arr.pollId}
             handleEdit={that.props.onEdit}
              />
       );
@@ -164,7 +208,7 @@ var RecipeList = React.createClass({
 
 var Recipe = React.createClass({
   handleClick: function() {
-    this.props.handleEdit({'name': this.props.name, 'ingredients': this.props.ingredients});
+    this.props.handleEdit({'name': this.props.name, 'choices': this.props.choices, 'pollId': this.props.pollId});
   },
 
 
@@ -185,24 +229,28 @@ var DisplayModal = React.createClass({
     this.props.handleClose();
   },
 
-  save() {
+  saveNew() {
     this.props.handleSave();
   },
 
-  deleteRecipe() {
-    this.props.handleDelete();
+  saveEdit() {
+    this.props.handleSaveEdit(this.props.current);
+  },
+
+  deleteSelected() {
+    this.props.handleDelete(this.props.current.pollId);
   },
 
   startEditing() {
     this.props.startEditing();
   },
 
-  handleChangeRecipe(e) {
+  handleChangeName(e) {
     this.props.handleChange({"name": e.target.value});
   },
 
-  handleChangeIngredient(e) {
-    this.props.handleChange({"ingredients": e.target.value});
+  handleChangeChoices(e) {
+    this.props.handleChange({"choices": e.target.value});
   },
 
   render() {
@@ -212,16 +260,16 @@ var DisplayModal = React.createClass({
       <div>
         <Modal className="modal" show={this.props.showAddModal} onHide={this.close}>
           <Modal.Header className="modal-header" closeButton>
-            <Modal.Title>Add Recipe</Modal.Title>
+            <Modal.Title>Add Poll</Modal.Title>
           </Modal.Header>
               <Modal.Body className="modal-body">
-                <h4>Recipe Name</h4>
-                <input type='text' className="input-lg name-input" onChange={this.handleChangeRecipe} placeholder="Recipe Name" ></input>
-                <h4>Ingredients</h4>
-                <textarea className="ingredient-input" onChange={this.handleChangeIngredient} placeholder="Ingredients" ></textarea>
+                <h4>Poll Name</h4>
+                <input type='text' className="input-lg name-input" onChange={this.handleChangeName} placeholder="Poll Name" ></input>
+                <h4>Choices</h4>
+                <textarea className="ingredient-input" onChange={this.handleChangeChoices} placeholder="Choices" ></textarea>
               </Modal.Body>
           <Modal.Footer className="modal-footer">
-            <Button onClick={this.save}>Save</Button>
+            <Button onClick={this.saveNew}>Save</Button>
             <Button onClick={this.close}>Close</Button>
           </Modal.Footer>
         </Modal>
@@ -232,29 +280,29 @@ var DisplayModal = React.createClass({
         <Modal className="modal" show={this.props.showEditModal} onHide={this.close}>
           <Modal.Header className="modal-header" closeButton>
           { this.props.editing ?
-            <Modal.Title>Edit Recipe</Modal.Title>
+            <Modal.Title>Edit Poll</Modal.Title>
             :
             <Modal.Title>{this.props.current.name}</Modal.Title> }
           </Modal.Header>
 
           { this.props.editing ?
              <Modal.Body className="modal-body">
-              <h4>Recipe Name</h4>
-              <input type='text' className="input-lg name-input" onChange={this.handleChangeRecipe} defaultValue={this.props.current.name} ></input>
-              <h4>Ingredients</h4>
-              <textarea className="ingredient-input" onChange={this.handleChangeIngredient} defaultValue={this.props.current.ingredients} ></textarea>
+              <h4>Poll Name</h4>
+              <input type='text' className="input-lg name-input" onChange={this.handleChangeName} defaultValue={this.props.current.name} ></input>
+              <h4>Choices</h4>
+              <textarea className="ingredient-input" onChange={this.handleChangeChoices} defaultValue={this.props.current.choices} ></textarea>
              </Modal.Body>
            :
            <Modal.Body className="modal-body">
-             <h4>Ingredients</h4>
-             <p>{this.props.current.ingredients}</p>
+             <h4>Choices</h4>
+             <p>{this.props.current.choices}</p>
              </Modal.Body> }
 
           <Modal.Footer className="modal-footer">
           { this.props.editing ?
             <div>
-              <Button className="pull-left" onClick={this.deleteRecipe}>Delete</Button>
-              <Button onClick={this.save}>Save</Button>
+              <Button className="pull-left" onClick={this.deleteSelected}>Delete</Button>
+              <Button onClick={this.saveEdit}>Save</Button>
               <Button onClick={this.close}>Close</Button>
             </div>
             :

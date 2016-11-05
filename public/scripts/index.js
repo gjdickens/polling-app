@@ -98,21 +98,8 @@ fetchIp: function() {
   componentDidMount: function() {
     this.fetchPolls();
     this.fetchIp();
-    this.loadGoogleCharts();
   },
 
-  loadGoogleCharts: function() {
-  var that = this;
-  var options = {
-    dataType: "script",
-    cache: true
-  };
-  fetch('https://www.google.com/jsapi', options)
-    .then(function(res) {
-      console.log(res);
-      //google.load("visualization", "1", { packages:["corechart"] } )
-    });
-},
 
   editSelected: function(selected) {
     var that = this;
@@ -517,11 +504,7 @@ var PollChoiceList = React.createClass({
              />
       );
     });
-    var pollResponses = this.props.current.choices.map(function(arr, i) {
-      return (
-          <p>{arr.choice}: {arr.responses.length}</p>
-      );
-    });
+
     return (
       <div>
         { this.props.vote.canVote ?
@@ -533,9 +516,9 @@ var PollChoiceList = React.createClass({
         </div>
         :
         <div>
-        {pollResponses}
-        <GoogleLineChart
+        <GoogleDonutChart
           graphName="test"
+          choices={this.props.current.choices}
         />
         </div>
       }
@@ -544,7 +527,7 @@ var PollChoiceList = React.createClass({
   }
 });
 
-var GoogleLineChart = React.createClass({
+var GoogleDonutChart = React.createClass({
   render: function(){
     return React.DOM.div({id: this.props.graphName, style: {height: "500px"}});
   },
@@ -555,19 +538,19 @@ var GoogleLineChart = React.createClass({
     this.drawCharts();
   },
   drawCharts: function(){
-    var data = google.visualization.arrayToDataTable([
-      ['Random X', 'Random Y'],
-      ['1', Math.floor(Math.random() * 40) + 1],
-      ['2', Math.floor(Math.random() * 40) + 1],
-      ['3', Math.floor(Math.random() * 40) + 1],
-      ['4', Math.floor(Math.random() * 40) + 1],
-      ['5', Math.floor(Math.random() * 40) + 1],
-    ]);
+    var dataArray = [['Choice', 'Responses']];
+    this.props.choices.map(function(arr, i) {
+      console.log(arr);
+      dataArray.push([arr.choice, arr.responses.length])
+    });
+    console.log(dataArray);
+    var data = google.visualization.arrayToDataTable(dataArray);
     var options = {
-      title: 'ABC',
+      title: 'Responses',
+      pieHole: 0.4
     };
 
-    var chart = new google.visualization.LineChart(
+    var chart = new google.visualization.PieChart(
       document.getElementById(this.props.graphName)
     );
     chart.draw(data, options);

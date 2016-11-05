@@ -98,10 +98,36 @@ fetchIp: function() {
   componentDidMount: function() {
     this.fetchPolls();
     this.fetchIp();
+    this.loadGoogleCharts();
   },
 
+  loadGoogleCharts: function() {
+  var that = this;
+  var options = {
+    dataType: "script",
+    cache: true
+  };
+  fetch('https://www.google.com/jsapi', options)
+    .then(function(res) {
+      console.log(res);
+      //google.load("visualization", "1", { packages:["corechart"] } )
+    });
+},
+
   editSelected: function(selected) {
-    this.setState({current: {"name": selected.name, "choices": selected.choices, "pollId": selected.pollId, "creator": selected.creator }});
+    var that = this;
+    var canVote = true;
+    selected.choices.map(function(arr, i) {
+      arr.responses.map(function(a, j) {
+        if (that.state.user.userName !== "") {
+          if(a === that.state.user.userName) { canVote = false }
+        }
+        else {
+          if(a === that.state.ip) { canVote = false }
+        }
+      });
+    });
+    this.setState({current: {"name": selected.name, "choices": selected.choices, "pollId": selected.pollId, "creator": selected.creator }, vote: {canVote: canVote, selected: that.state.vote.selected}});
     this.showEditModal();
   },
 
@@ -434,7 +460,7 @@ var Poll = React.createClass({
         <a
         href="#"
         onClick={this.handleClick}
-        className="list-group-item recipe"
+        className="list-group-item"
         >{this.props.name}</a>
     );
   }
@@ -508,6 +534,9 @@ var PollChoiceList = React.createClass({
         :
         <div>
         {pollResponses}
+        <GoogleLineChart
+          graphName="test"
+        />
         </div>
       }
       </div>
@@ -515,7 +544,38 @@ var PollChoiceList = React.createClass({
   }
 });
 
-//TO DO add in selected state and function handleSelect to change selection
+var GoogleLineChart = React.createClass({
+  render: function(){
+    return React.DOM.div({id: this.props.graphName, style: {height: "500px"}});
+  },
+  componentDidMount: function(){
+    this.drawCharts();
+  },
+  componentDidUpdate: function(){
+    this.drawCharts();
+  },
+  drawCharts: function(){
+    var data = google.visualization.arrayToDataTable([
+      ['Random X', 'Random Y'],
+      ['1', Math.floor(Math.random() * 40) + 1],
+      ['2', Math.floor(Math.random() * 40) + 1],
+      ['3', Math.floor(Math.random() * 40) + 1],
+      ['4', Math.floor(Math.random() * 40) + 1],
+      ['5', Math.floor(Math.random() * 40) + 1],
+    ]);
+    var options = {
+      title: 'ABC',
+    };
+
+    var chart = new google.visualization.LineChart(
+      document.getElementById(this.props.graphName)
+    );
+    chart.draw(data, options);
+  }
+});
+
+
+
 var PollChoice = React.createClass({
   handleSelect: function(e) {
     this.props.handleChoice(e.target.value);

@@ -4,8 +4,8 @@ var Schema = mongoose.Schema;
 var Schema   = new Schema({
     name: String,
     question: String,
-    choices: String,
-    responses: Array,
+    choices: Array,
+    creator: String,
     pollId: String
 });
 

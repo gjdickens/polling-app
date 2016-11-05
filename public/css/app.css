@@ -5818,15 +5818,19 @@ button.close {
 body {
   height: 100%;
   font-family: arial, sans-serif !important;
-  padding-top: 10px; }
+  padding-top: 20px; }
 
 .app {
-  max-width: 320px;
   min-height: 480px;
   margin: 0 auto;
   background-color: #39393A;
   color: white;
   border-color: black; }
+
+.loggedInUser {
+  text-align: center;
+  min-width: 100px;
+  color: black; }
 
 .name-input {
   width: 100%; }
@@ -5852,6 +5856,8 @@ body {
   .modal .modal-body h4 {
     color: white; }
   .modal .modal-body p {
+    color: white; }
+  .modal .modal-body label {
     color: white; }
 
 .modal .modal-footer {

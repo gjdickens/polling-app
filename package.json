@@ -9,7 +9,10 @@
     "react-bootstrap": "^0.30.3",
     "mongoose": "4.6.4",
     "node-sass-middleware": "^0.9.8",
-    "body-parser": "*"
+    "body-parser": "*",
+    "passport": "*",
+    "passport-local": "*",
+    "passport-local-mongoose": "*"
   }
 
 }

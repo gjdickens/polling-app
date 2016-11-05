@@ -11,17 +11,23 @@ $color2: #39393A;
 body {
   height: 100%;
   font-family: $font-stack !important;
-  padding-top: 10px;
+  padding-top: 20px;
 }
 
 .app {
-  max-width: 320px;
   min-height: 480px;
   margin: 0 auto;
   background-color: $color2;
   color: $color4;
   border-color: $color5;
 }
+
+.loggedInUser {
+  text-align: center;
+  min-width: 100px;
+  color: black;
+}
+
 
 .name-input {
     width: 100%;
@@ -51,10 +57,13 @@ body {
   .modal-body {
     background-color: $color2;
     h4 {
-      color: $color4;
+      color: white;
     }
     p {
-      color: $color4;
+      color: white;
+    }
+    label {
+      color: white;
     }
 
   }

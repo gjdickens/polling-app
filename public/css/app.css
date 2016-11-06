@@ -5818,19 +5818,20 @@ button.close {
 body {
   height: 100%;
   font-family: arial, sans-serif !important;
-  padding-top: 20px; }
+  padding-top: 20px;
+  background-color: #86BBD8; }
 
 .app {
   min-height: 480px;
   margin: 0 auto;
-  background-color: #39393A;
+  background-color: #336699;
   color: white;
-  border-color: black; }
+  border-color: #336699; }
 
 .loggedInUser {
   text-align: center;
   min-width: 100px;
-  color: black; }
+  color: white; }
 
 .name-input {
   width: 100%; }
@@ -5838,21 +5839,23 @@ body {
 .ingredient-input {
   width: 100%; }
 
-.recipe {
-  background-color: #E6E6E6 !important;
-  color: black !important;
+.poll {
+  background-color: #2F4858 !important;
+  color: white !important;
   text-align: center;
-  border-color: white !important; }
-  .recipe:hover {
-    background-color: #FF8552 !important;
-    border-color: black !important; }
+  border-color: #DAF7DC !important; }
+  .poll:hover {
+    background-color: #9EE493 !important;
+    color: grey !important;
+    font-weight: bold;
+    border-color: #2F4858 !important; }
 
 .modal .modal-header {
-  background-color: #E6E6E6 !important;
-  color: black !important; }
+  background-color: #2F4858 !important;
+  color: white !important; }
 
 .modal .modal-body {
-  background-color: #39393A; }
+  background-color: #336699; }
   .modal .modal-body h4 {
     color: white; }
   .modal .modal-body p {
@@ -5861,11 +5864,29 @@ body {
     color: white; }
 
 .modal .modal-footer {
-  background-color: #39393A; }
+  background-color: #2F4858; }
   .modal .modal-footer button {
-    background-color: #E6E6E6 !important;
-    color: black !important;
-    border-color: white !important; }
+    background-color: #336699 !important;
+    color: white !important;
+    border-color: #86BBD8 !important;
+    display: inline-block; }
     .modal .modal-footer button:hover {
-      background-color: #FF8552 !important;
-      border-color: black !important; }
+      background-color: #86BBD8 !important;
+      border-color: #336699 !important; }
+  .modal .modal-footer .twitter-share-button {
+    display: inline-block; }
+
+.carousel {
+  margin-top: 40px;
+  display: inline-block; }
+
+.jumbotron {
+  background-color: #336699;
+  color: white; }
+  .jumbotron .btn-register {
+    background-color: #2F4858;
+    color: white; }
+
+.navbar-default {
+  background-color: #2F4858;
+  color: white; }

@@ -6,8 +6,31 @@ var NavItem = ReactBootstrap.NavItem;
 var FormGroup = ReactBootstrap.FormGroup;
 var FormControl = ReactBootstrap.FormControl;
 var ControlLabel = ReactBootstrap.ControlLabel;
+var Carousel = ReactBootstrap.Carousel;
+var Jumbotron = ReactBootstrap.Jumbotron;
+
+//TO DO when registering, automatically login; format tweet button
 
 var DisplayContainer = React.createClass({
+fetchPollsOnLoad: function() {
+  var that = this;
+  fetch('/polls')
+    .then(function(response) {
+      return response.json()
+    })
+    .then(function(json) {
+      var selectedPollId = that.fetchSelectedPoll();
+      if (selectedPollId) {
+        var selectedPoll = json.data.filter(function(arr, i) {
+          return arr.pollId === selectedPollId;
+        });
+        that.setState({data: json.data})
+        that.editSelected(selectedPoll[0]);
+      }
+      that.setState({data: json.data})
+    })
+  },
+
 fetchPolls: function() {
   var that = this;
   fetch('/polls')
@@ -28,6 +51,17 @@ fetchIp: function() {
     .then(function(json) {
       that.setState({ip: json.ip})
     })
+  },
+
+  fetchSelectedPoll: function() {
+    if (window.location.search !== "") {
+      var queryArr = window.location.search.split('?');
+      var selectedPoll = queryArr[1];
+      return selectedPoll;
+    }
+    else {
+      return false;
+    }
   },
 
   saveNew: function() {
@@ -95,8 +129,11 @@ fetchIp: function() {
     }
   },
 
+
+
+
   componentDidMount: function() {
-    this.fetchPolls();
+    this.fetchPollsOnLoad();
     this.fetchIp();
   },
 
@@ -221,7 +258,6 @@ fetchIp: function() {
       }
       return arr;
     });
-    console.log(currentChoice);
     this.setState({
       "vote": {"canVote": false, "selected": "" },
       current: {
@@ -325,25 +361,52 @@ fetchIp: function() {
             </Navbar.Form>
           </Navbar.Collapse>
         </Navbar>
+
           { this.state.user.loggedIn ?
-          <div>
-            <h2 className="text-center">My Polls</h2>
+            <div>
+            <Jumbotron>
+            <h1>Poll Dashboard</h1>
+            <p>Welcome back {this.state.user.userName}</p>
+          </Jumbotron>
+          <div className="col-md-7">
+            <h2 className="text-center">Manage My Polls</h2>
             <MyPollList
               data={this.state.data}
               user={this.state.user}
               onEdit={this.editSelected}
               />
               <br/>
-              <a href='#' className='list-group-item recipe' onClick={this.addNew}>Add New Poll</a>
+              <a href='#' className='list-group-item poll' onClick={this.addNew}>Add New Poll</a>
           </div>
-      : <div></div> }
+          <div className="col-md-5 text-center">
+            <MyPollsCarousel
+              data={this.state.data}
+              user={this.state.user} />
+          </div>
+          <div className="col-md-12">
+          <br/>
+          <h2 className="text-center">Take a Poll</h2>
+          <PollList
+            data={this.state.data}
+            onEdit={this.editSelected}
+            user={this.state.user}
+            />
+            </div>
+          </div>
+      : <div>
+        <Jumbotron>
+          <h1>Welcome to Poll Dashboard</h1>
+          <p>Take a poll or log in to create a new poll</p>
+          <p><Button className="btn btn-register" onClick={this.showRegisterModal}>Register</Button></p>
+        </Jumbotron>
         <br/>
-        <h2 className="text-center">Polls</h2>
-        <PollList
-          data={this.state.data}
-          onEdit={this.editSelected}
-          user={this.state.user}
-          />
+          <h2 className="text-center">Take a Poll</h2>
+          <PollList
+            data={this.state.data}
+            onEdit={this.editSelected}
+            user={this.state.user}
+            /></div> }
+
 
 
 
@@ -405,6 +468,32 @@ var MyPollList = React.createClass({
   }
 });
 
+var MyPollsCarousel = React.createClass({
+  render: function() {
+    var that = this;
+    var myPollNodes = this.props.data.filter(function(arr,i) {return arr.creator === that.props.user.userName} );
+    var carouselItems = myPollNodes.map(function(arr, i) {
+      return (
+        <Carousel.Item>
+          <GoogleDonutChart
+            graphName={'carousel_graph_' + i}
+            key={arr.choices.choiceId}
+            choices={arr.choices}
+          />
+        <Carousel.Caption>
+          <h4>{arr.name}</h4>
+        </Carousel.Caption>
+        </Carousel.Item>
+      );
+    });
+    return (
+       <Carousel className="graph-carousel">
+          {carouselItems}
+       </Carousel>
+    );
+  }
+});
+
 
 
 
@@ -445,9 +534,9 @@ var Poll = React.createClass({
   render: function() {
     return (
         <a
-        href="#"
+        href='#'
         onClick={this.handleClick}
-        className="list-group-item"
+        className="list-group-item poll"
         >{this.props.name}</a>
     );
   }
@@ -474,7 +563,7 @@ var RegisterModal = React.createClass({
                   <FormControl type='text' name="username" placeholder="Username" />
                   <FormControl type="password" name="password" placeholder="Password" />
                 </FormGroup>
-                <Button type="submit">Register</Button>
+                <Button type="submit" className="btn">Register</Button>
               </form>
               </Modal.Body>
           <Modal.Footer className="modal-footer">
@@ -529,25 +618,37 @@ var PollChoiceList = React.createClass({
 
 var GoogleDonutChart = React.createClass({
   render: function(){
-    return React.DOM.div({id: this.props.graphName, style: {height: "500px"}});
+    return React.DOM.div({id: this.props.graphName, className: 'carousel-inner'});
   },
   componentDidMount: function(){
-    this.drawCharts();
+    this.checkGoogleChartsLoaded();
   },
   componentDidUpdate: function(){
-    this.drawCharts();
+    this.checkGoogleChartsLoaded();
   },
+
+  checkGoogleChartsLoaded: function() {
+    if (google.visualization.PieChart) {
+      this.drawCharts();
+    }
+    else {
+      setTimeout(this.checkGoogleChartsLoaded, 50)
+    }
+  },
+
   drawCharts: function(){
     var dataArray = [['Choice', 'Responses']];
     this.props.choices.map(function(arr, i) {
-      console.log(arr);
       dataArray.push([arr.choice, arr.responses.length])
     });
-    console.log(dataArray);
     var data = google.visualization.arrayToDataTable(dataArray);
     var options = {
-      title: 'Responses',
-      pieHole: 0.4
+      pieHole: 0.4,
+      legend: "none",
+      backgroundColor: 'transparent',
+      pieSliceText: 'label',
+      height: 400,
+      left: 0
     };
 
     var chart = new google.visualization.PieChart(
@@ -672,7 +773,7 @@ var DisplayModal = React.createClass({
               <Modal.Body className="modal-body">
                 <h4>Poll Name</h4>
                 <input type='text' className="input-lg name-input" onChange={this.handleChangeName} placeholder="Poll Name" ></input>
-                <h4>Choices</h4>
+                <h4>Add Choices</h4>
                 <NewPollChoiceList
                     current={this.props.current}
                     handleAddChoice={this.props.handleAddChoice}
@@ -699,8 +800,8 @@ var DisplayModal = React.createClass({
           { this.props.editing ?
              <Modal.Body className="modal-body">
               <h4>Poll Name</h4>
-              <input type='text' className="input-lg name-input" onChange={this.handleChangeName} placeholder={this.props.current.name} ></input>
-              <h4>Choices</h4>
+              <input type='text' className="input-lg name-input" onChange={this.handleChangeName} defaultValue={this.props.current.name} ></input>
+              <h4>Edit Choices</h4>
               <NewPollChoiceList
                   current={this.props.current}
                   handleAddChoice={this.props.handleAddChoice}
@@ -709,7 +810,6 @@ var DisplayModal = React.createClass({
              </Modal.Body>
            :
            <Modal.Body className="modal-body">
-             <h4>Choices</h4>
              <PollChoiceList
                  current={this.props.current}
                  vote={this.props.vote}
@@ -727,9 +827,17 @@ var DisplayModal = React.createClass({
             :
             <div>
             { this.props.current.creator === this.props.user.userName ?
-              <Button onClick={this.startEditing}>Edit</Button>
-              : <div></div> }
-              <Button onClick={this.close}>Close</Button>
+              <div>
+                <a
+                  href={'https://twitter.com/intent/tweet?text=Check%20out%20this%20poll: ' + window.location.hostname + '/?' + this.props.current.pollId}
+                  className="fa fa-lg fa-twitter-square twitter-share-button pull-left"
+                  ></a>
+                <Button onClick={this.startEditing}>Edit</Button>
+                <Button onClick={this.close}>Close</Button>
+              </div>
+
+              : <div><Button onClick={this.close}>Close</Button></div> }
+
             </div> }
           </Modal.Footer>
         </Modal>
@@ -739,7 +847,6 @@ var DisplayModal = React.createClass({
     );
   }
 });
-
 
 
 

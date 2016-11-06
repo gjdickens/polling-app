@@ -93,7 +93,6 @@ router.route('/polls')
 
     //update poll by id
     .put(function(req, res) {
-      console.log(req.body);
       Poll.findOne({'pollId': req.params.poll_id}, function(err, poll) {
         if (err) {res.send(err)}
         else {
@@ -108,7 +107,10 @@ router.route('/polls')
 
       });
     })
-    //delete bear by id
+    .get(function(req, res) {
+      res.redirect(303, '/?' + req.params.poll_id);
+    })
+
     .delete(function(req, res) {
       Poll.remove({
         pollId: req.params.poll_id
@@ -144,7 +146,6 @@ router.get('/checkIp', function(req, res) {
      req.connection.remoteAddress ||
      req.socket.remoteAddress ||
      req.connection.socket.remoteAddress;
-     console.log(ip);
      res.json({ip: ip});
 });
 

@@ -2,30 +2,32 @@
 @import 'https://fonts.googleapis.com/css?family=Rock+Salt';
 
 $font-stack:  arial, sans-serif;
-$color4: white;
-$color5: black;
-$color3: #FF8552;
-$color1: #E6E6E6;
-$color2: #39393A;
+$color1: #336699;
+$color2: #86BBD8;
+$color3: #2F4858;
+$color4: #9EE493;
+$color5: #DAF7DC;
 
 body {
   height: 100%;
   font-family: $font-stack !important;
   padding-top: 20px;
+  background-color: $color2;
 }
 
 .app {
   min-height: 480px;
   margin: 0 auto;
-  background-color: $color2;
-  color: $color4;
-  border-color: $color5;
+  background-color: $color1;
+  color: white;
+  border-color: $color1;
 }
+
 
 .loggedInUser {
   text-align: center;
   min-width: 100px;
-  color: black;
+  color: white;
 }
 
 
@@ -37,25 +39,27 @@ body {
     width: 100%;
 }
 
-.recipe {
-    background-color: $color1 !important;
-    color: $color5 !important;
+.poll {
+    background-color: $color3 !important;
+    color: white !important;
     text-align: center;
-    border-color: $color4 !important;
+    border-color: $color5 !important;
     &:hover {
-        background-color: $color3 !important;
-        border-color: $color5 !important;
+        background-color: $color4 !important;
+        color: grey !important;
+        font-weight: bold;
+        border-color: $color3 !important;
     }
 }
 
 .modal {
   .modal-header {
-    background-color: $color1 !important;
-    color: $color5 !important;
+    background-color: $color3 !important;
+    color: white !important;
 
   }
   .modal-body {
-    background-color: $color2;
+    background-color: $color1;
     h4 {
       color: white;
     }
@@ -68,16 +72,39 @@ body {
 
   }
   .modal-footer {
-    background-color: $color2;
+    background-color: $color3;
     button {
       background-color: $color1 !important;
-      color: $color5 !important;
-      border-color: $color4 !important;
+      color: white !important;
+      border-color: $color2 !important;
+      display: inline-block;
       &:hover {
-          background-color: $color3 !important;
-          border-color: $color5 !important;
+          background-color: $color2 !important;
+          border-color: $color1 !important;
     }
+  }
+  .twitter-share-button {
+    display: inline-block;
   }
 
   }
+}
+
+.carousel {
+  margin-top: 40px;
+  display: inline-block;
+}
+
+.jumbotron {
+  background-color: $color1;
+  color: white;
+  .btn-register {
+    background-color: $color3;
+    color: white;
+  }
+}
+
+.navbar-default {
+  background-color: $color3;
+  color: white;
 }
